@@ -1,34 +1,52 @@
-import logo from './logo.svg';
-import './App.css';
-import Api from './Api';
-import { useEffect, useState } from 'react'; 
+import "./App.css";
+import Api from "./Api";
+import { useEffect, useState } from "react";
+import RecipeList from "./components/RecipeList";
+import SearchBar from "./components/SearchBar";
 
 function App() {
-  const [test, setTest] = useState(null);
+  const [recipes, setRecipes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
 
-  const testCall = () => {
-    Api().get('/').then((response) => setTest(response.data));
+  const fetchRecipes = (page) => {
+    try {
+      Api()
+        .get(`/api/recipes?page=${page}`)
+        .then((response) => setRecipes(response.data));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    fetchRecipes(page);
+  }, [page]);
+
+  const handlePageChange = async (page) => {
+    setPage(page);
+    // fetchRecipes(page);
   };
 
-  useEffect(testCall, []);
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchTitle = recipe.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return matchTitle;
+  });
 
   return (
     <div className="App">
-      <header className="App-header">
-        { JSON.stringify(test) }
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Recipe Manager 9000</h1>
+      <button onClick={() => handlePageChange(1)}>1</button> 
+      {/* problemot bese sto ne mu dadovme funkcija tuku ja povikavme funkcijata */}
+      {/* Bese  onClick={handlePageChange(1)}*/}
+      <button onClick={() => handlePageChange(2)}>2</button>
+      <SearchBar handleSearch={handleSearch} />
+      <RecipeList recipes={filteredRecipes} />
     </div>
   );
 }
