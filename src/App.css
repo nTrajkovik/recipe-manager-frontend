@@ -1,3 +1,7 @@
+html {
+  background: #f6e3cf;
+  color: #444;
+}
 .App {
   text-align: center;
 }
@@ -35,4 +39,18 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+input {
+  font-size: 18px;
+  border-radius: 5px;
+  background-color: white;
+  border: none;
+  outline: none;
+  width: 250px;
+  height: 30px;
+  transform: translate(5px,-3px);
+  color: black;
+  padding: 10px;
+  font-weight: bold;
 }
