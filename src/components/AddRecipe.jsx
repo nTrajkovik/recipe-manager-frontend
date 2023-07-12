@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Api from "../Api";
 import Select from "react-select";
-import { _tags } from '../tags';
+import { TagContext } from "../context/TagContext";
+import Loading from "./Loading";
+import { toast } from "react-toastify";
 
 const AddRecipe = () => {
   const [title, setTitle] = useState("");
@@ -46,17 +48,17 @@ const AddRecipe = () => {
       setTime("");
       setIngredients([]);
       setTags([]);
-      alert("Succesfully saved recipe!");
+      toast("Succesfully saved recipe!");
     } catch (error) {
       console.error(error);
-      alert("Failed to add recipe. Please try again.");
+      toast("Failed to add recipe. Please try again.");
     }
     setLoading(false);
   };
-  const options = _tags;
+  const options = useContext(TagContext).tags;;
 
   if (loading) {
-    return <img src="/loading.gif" alt="loading" />;
+    return <Loading />;
   }
 
   return (
@@ -72,6 +74,7 @@ const AddRecipe = () => {
             required
           />
         </label>
+        <br />
         <label>
           Preparation:
           <input
@@ -80,6 +83,7 @@ const AddRecipe = () => {
             onChange={(e) => setPreparation(e.target.value)}
           />
         </label>
+        <br />
         <label>
           Time:
           <input
@@ -88,6 +92,7 @@ const AddRecipe = () => {
             onChange={(e) => setTime(e.target.value)}
           />
         </label>
+        <br />
         <h4>Ingredients:</h4>
         <ol>
           {ingredients.map((ingredient, index) => (

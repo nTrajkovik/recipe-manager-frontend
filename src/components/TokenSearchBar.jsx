@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import Select from "react-select";
-import { _tags } from '../tags';
+import { TagContext } from "../context/TagContext";
 
 const TokenSearchBar = ({ handleFilter }) => {
-  const options = _tags;
+  const options = useContext(TagContext).tags;
 
   const handleChange = (selectedOptions) => {
     const selectedTags = selectedOptions.map(option => option.value);

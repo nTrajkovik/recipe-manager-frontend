@@ -5,6 +5,7 @@ const Pagination = ({ page, pages, handlePageChange }) => {
     <div>
       {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
         <button
+          key={p}
           style={{
             borderRadius: "50%",
             border: "none",
