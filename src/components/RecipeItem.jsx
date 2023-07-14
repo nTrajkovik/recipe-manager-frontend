@@ -13,6 +13,7 @@ const RecipeItem = ({ recipe }) => {
       }}
     >
       <div style={{ width: "50%" }}>
+        {recipe.image ? (<img src={recipe.image} alt="recipe"/>) : null }
         <h3>{recipe.title}</h3>
 
         <ul>{recipe.tags ? recipe.tags.map((tag) => <li>{tag}</li>) : null}</ul>

@@ -1,7 +1,7 @@
 import "./App.css";
 import Api from "./Api";
 import { useEffect, useState } from "react";
-import { BrowserRouter as Redirect, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import RecipeList from "./components/RecipeList";
 import SearchBar from "./components/SearchBar";
 import AddRecipe from "./components/AddRecipe";
@@ -14,19 +14,56 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 import Register from "./components/Register";
 import Login from "./components/Login";
+import Auth from "./Auth";
+import Loading from "./components/Loading";
+import { useNavigate } from 'react-router-dom';
 
 function App() {
-  const [authenticated, setAuthenticated] = useState(null);
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [recipes, setRecipes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [filteredTags, setFilteredTags] = useState([]);
   const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  const authenticate = (id) => {
-    localStorage.setItem('jwt', id);
-    setAuthenticated(id);
+  const authenticate = (token) => {
+    console.log({token});
+    localStorage.setItem("jwt", token);
+    fetchUserData();
   };
+
+  const fetchUserData = async () => {
+    try {
+      const response = await Api().get('/api/user-data');
+      console.log({response});
+      if (response?.data) {
+        setUser(response?.data);
+        localStorage.setItem("userData", JSON.stringify(response?.data));
+        navigate('/recipes');
+      }
+    } catch (error) {
+      console.error('Unable to fetch user data', error);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("userData");
+    setUser(null);
+  };
+
+  useEffect(() => {
+    const cachedUser = localStorage.getItem("userData");
+    if (cachedUser) {
+      const parsedUser = JSON.parse(cachedUser);
+      if (parsedUser) {
+        setUser(parsedUser);
+      }
+    }
+    setLoading(false);
+  }, []);
 
   const fetchRecipes = (page, searchTerm, filteredTags) => {
     try {
@@ -63,13 +100,11 @@ function App() {
     setSearchTerm(term);
   };
 
+  if (loading) return <Loading />;
   return (
     <div>
       <div className="App">
-        <Navbar />
-        <Routes>
-          
-        </Routes>
+        <Navbar logout={logout} user={user} />
         <TagProvider>
           <Routes>
             <Route
@@ -82,9 +117,6 @@ function App() {
             />
             <Route
               path="/"
-              render={() =>
-                authenticated ? <Redirect to="/recipes" /> : <Register />
-              }
               element={
                 <div>
                   This is my landing page...
@@ -92,29 +124,37 @@ function App() {
                 </div>
               }
             ></Route>
+            <Route element={<Auth user={user} />}>
+              <Route
+                path="recipes"
+                element={
+                  <div>
+                    <SearchBar handleSearch={handleSearch} />
+                    <TokenSearchBar handleFilter={handleFilter} />
+                    <Pagination
+                      page={page}
+                      pages={pages}
+                      handlePageChange={handlePageChange}
+                    />
+                    <RecipeList recipes={recipes} />
+                    {/* <button onClick={() => setPage(page+1)}>Load more</button> /*Infinite loading */}
+                  </div>
+                }
+              ></Route>
+            </Route>
+            <Route element={<Auth user={user} allowedRoles={["admin"]} />}>
+              <Route
+                path="add"
+                element={
+                  <div>
+                    <AddRecipe /> <AddTag />
+                  </div>
+                }
+              ></Route>
+            </Route>
             <Route
-              path="recipes"
-              element={
-                <div>
-                  <SearchBar handleSearch={handleSearch} />
-                  <TokenSearchBar handleFilter={handleFilter} />
-                  <Pagination
-                    page={page}
-                    pages={pages}
-                    handlePageChange={handlePageChange}
-                  />
-                  <RecipeList recipes={recipes} />
-                  {/* <button onClick={() => setPage(page+1)}>Load more</button> /*Infinite loading */}
-                </div>
-              }
-            ></Route>
-            <Route
-              path="add"
-              element={
-                <div>
-                  <AddRecipe /> <AddTag />
-                </div>
-              }
+              path="unauthorized"
+              element={<div>Unauthorized ...</div>}
             ></Route>
           </Routes>
         </TagProvider>

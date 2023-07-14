@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import Api from "../Api";
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
 
 const Register = ({ authenticate }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -17,10 +15,9 @@ const Register = ({ authenticate }) => {
     try {
         const response = await Api().post("/api/register", user);
         if (response.data) {
-            if (response.data.insertedId) {
+            if (response.data.token) {
                 toast('Succesfully registered!');
-                authenticate(response.data.insertedId);
-                navigate('/recipes');
+                authenticate(response.data.token);
             }
         }
     } catch (error) {
@@ -47,7 +44,7 @@ const Register = ({ authenticate }) => {
         <label>
           Password:
           <input
-            type="text"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

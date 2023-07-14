@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const Navbar = ({ user, logout }) => {
   const routes = [
     {
       path: "/",
@@ -14,8 +14,26 @@ const Navbar = () => {
     {
       path: "/add",
       title: "Add recipe",
+      roles: ['admin'],
+    },
+    {
+      path: "/login",
+      title: "Log in",
+      guestsOnly: true,
+    },
+    {
+      path: "/register",
+      title: "Sign up",
+      guestsOnly: true,
     },
   ];
+  const filteredRoutes = routes.filter((route) => {
+    if (route.guestsOnly && !user) return true;
+    if (route.guestsOnly && user) return false;
+    if (!route.roles) return true;
+    if (route.roles && user && route.roles.includes(user.role)) return true;
+    return false;
+  });
   return (
     <div>
       <div style={{ height: "86px" }}></div>
@@ -45,11 +63,12 @@ const Navbar = () => {
               gap: "20px",
             }}
           >
-            {routes.map((route) => (
+            {filteredRoutes.map((route) => (
               <Link key={route.path} to={route.path}>
                 {route.title}
               </Link>
             ))}
+            {user ? <button onClick={logout}>Log out</button> : ""}
           </nav>
         </div>
       </div>

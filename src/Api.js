@@ -1,12 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
 const Api = () => {
-    return axios.create({
-        baseURL: process.env.REACT_APP_BACKEND_API,
-        headers: {
-            Authorization: localStorage.getItem('jwt'),
-        },
-    });
+  const token = localStorage.getItem("jwt");
+  const client = axios.create({
+    baseURL: process.env.REACT_APP_BACKEND_API,
+    headers: {
+      Authorization: token,
+    },
+  });
+
+  return client;
 };
 
 export default Api;

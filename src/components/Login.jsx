@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import Api from "../Api";
 import { toast } from "react-toastify";
-import { useNavigate } from 'react-router-dom';
 
 const Login = ({ authenticate }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,10 +16,9 @@ const Login = ({ authenticate }) => {
         const response = await Api().post("/api/login", user);
         console.log(response);
         if (response.data) {
-            if (response.data) {
+            if (response.data.token) {
                 toast('Succesfully logged in!');
-                authenticate(response.data);
-                navigate('/recipes');
+                authenticate(response.data.token);
             }
         }
     } catch (error) {
@@ -48,7 +45,7 @@ const Login = ({ authenticate }) => {
         <label>
           Password:
           <input
-            type="text"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />

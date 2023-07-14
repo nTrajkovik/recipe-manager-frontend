@@ -12,6 +12,7 @@ const AddRecipe = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [tags, setTags] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleIngredientChange = (e, index, field) => {
     const updatedIngredients = [...ingredients];
@@ -22,13 +23,26 @@ const AddRecipe = () => {
   const handleTagChange = (selectedOptions) => {
     const selectedTags = selectedOptions.map((option) => option.value);
     setTags(selectedTags);
-  }
+  };
 
   const deleteIngredient = (index) => {
     const updatedIngredients = [...ingredients];
     updatedIngredients.splice(index, 1);
     setIngredients(updatedIngredients);
   };
+
+  const getBase64 = (file, callback) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      callback(reader.result);
+    }
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    getBase64(file, setSelectedFile);
+  } ;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +54,7 @@ const AddRecipe = () => {
       time,
       ingredients,
       tags,
+      image: selectedFile,
     };
     try {
       await Api().post("/api/recipes", newRecipe);
@@ -48,6 +63,7 @@ const AddRecipe = () => {
       setTime("");
       setIngredients([]);
       setTags([]);
+      setSelectedFile(null);
       toast("Succesfully saved recipe!");
     } catch (error) {
       console.error(error);
@@ -55,7 +71,7 @@ const AddRecipe = () => {
     }
     setLoading(false);
   };
-  const options = useContext(TagContext).tags;;
+  const options = useContext(TagContext).tags;
 
   if (loading) {
     return <Loading />;
@@ -147,6 +163,11 @@ const AddRecipe = () => {
             placeholder="Select tags"
           />
         </label>
+
+        <input
+          type="file"
+          onChange={handleImageUpload}
+        />
         <button type="submit" disabled={loading}>
           Add Recipe
         </button>
